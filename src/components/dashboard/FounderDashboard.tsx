@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,8 +7,11 @@ import DashboardHeader from './DashboardHeader';
 import DashboardKPI from './DashboardKPI';
 import ChatContainer from '../chat/ChatContainer';
 import { Lightbulb, LineChart, Users, FileText, Calendar, Settings } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 const FounderDashboard: React.FC = () => {
+  const [selectedFeature, setSelectedFeature] = useState<string | null>(null);
+
   const kpis = [
     {
       title: 'MVP Completion',
@@ -44,36 +47,64 @@ const FounderDashboard: React.FC = () => {
 
   const features = [
     { 
+      id: 'advisor',
       title: '24/7 Startup Advisor', 
       description: 'Strategy help and business questions answered instantly',
       icon: Lightbulb
     },
     { 
+      id: 'mvp',
       title: 'MVP Builder', 
       description: 'Transform your idea into a product with structured guidance',
       icon: FileText
     },
     { 
+      id: 'coach',
       title: 'Company Coach', 
       description: 'Hiring help, pitch decks, and presentation templates',
       icon: Users
     },
     { 
+      id: 'analytics',
       title: 'Business Analytics', 
       description: 'Track metrics and get insights for growth',
       icon: LineChart
     },
     { 
+      id: 'calendar',
       title: 'Startup Calendar', 
       description: 'Organize your fundraising and product milestones',
       icon: Calendar
     },
     { 
+      id: 'settings',
       title: 'Smart Settings', 
       description: 'Customize your founder experience',
       icon: Settings
     }
   ];
+
+  const handleFeatureClick = (featureId: string) => {
+    setSelectedFeature(featureId);
+    toast({
+      title: "Feature activated",
+      description: `You've activated the ${features.find(f => f.id === featureId)?.title} feature.`,
+    });
+  };
+
+  const handleUpgradeClick = () => {
+    toast({
+      title: "Premium Features",
+      description: "Unlock all premium features to accelerate your startup growth.",
+    });
+  };
+
+  const startRoadmap = () => {
+    toast({
+      title: "Startup Roadmap Started",
+      description: "Your startup roadmap has been created. Start adding milestones and goals.",
+    });
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -124,7 +155,7 @@ const FounderDashboard: React.FC = () => {
                       <CardDescription className="min-h-[40px]">
                         {feature.description}
                       </CardDescription>
-                      <Button variant="outline" size="sm" className="mt-4 w-full">
+                      <Button variant="outline" size="sm" className="mt-4 w-full" onClick={() => handleFeatureClick(feature.id)}>
                         Access Feature
                       </Button>
                     </CardContent>
@@ -146,7 +177,7 @@ const FounderDashboard: React.FC = () => {
                 <p className="text-center py-8 text-muted-foreground">
                   Create your startup roadmap to organize your vision, team, and funding strategy.
                 </p>
-                <Button className="w-full bg-sakha-purple hover:bg-sakha-purple/90">
+                <Button className="w-full bg-sakha-purple hover:bg-sakha-purple/90" onClick={startRoadmap}>
                   Start Your Startup Roadmap
                 </Button>
               </CardContent>
@@ -174,7 +205,7 @@ const FounderDashboard: React.FC = () => {
                 </ul>
               </div>
               <div className="flex flex-col justify-center">
-                <Button className="bg-sakha-purple hover:bg-sakha-purple/90">
+                <Button className="bg-sakha-purple hover:bg-sakha-purple/90" onClick={handleUpgradeClick}>
                   Unlock Founder Tools
                 </Button>
               </div>

@@ -34,7 +34,8 @@ const Signup = () => {
         title: "Account created!",
         description: "Welcome to Sakha AI. Let's get started!",
       });
-      navigate('/onboarding');
+      // Navigate to onboarding flow
+      navigate('/onboarding', { state: { role: '' } });
     }, 1500);
   };
 

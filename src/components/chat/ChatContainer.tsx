@@ -43,6 +43,29 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
     
     if (onSendMessage) {
       onSendMessage(content);
+    } else {
+      // Default behavior: generate an AI response after a short delay
+      setTimeout(() => {
+        const responses = [
+          "I'm here to assist you with that. What specific information do you need?",
+          "Great question! Let me help you with that.",
+          "Based on your profile, I'd recommend focusing on this area first.",
+          "I've analyzed your progress, and you're doing well with this skill!",
+          "Would you like me to create a personalized plan for this?",
+          "Let me find some resources that match your learning style."
+        ];
+        
+        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        
+        const aiResponse: Message = {
+          id: generateId(),
+          role: 'assistant',
+          content: randomResponse,
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, aiResponse]);
+      }, 1000);
     }
   };
 

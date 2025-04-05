@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,8 +7,11 @@ import DashboardHeader from './DashboardHeader';
 import DashboardKPI from './DashboardKPI';
 import ChatContainer from '../chat/ChatContainer';
 import { BookOpen, FileText, Stethoscope, Calendar, Book, Settings } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 const DoctorDashboard: React.FC = () => {
+  const [selectedFeature, setSelectedFeature] = useState<string | null>(null);
+
   const kpis = [
     {
       title: 'Research Milestones',
@@ -44,36 +47,64 @@ const DoctorDashboard: React.FC = () => {
 
   const features = [
     { 
+      id: 'thesis',
       title: 'Make Thesis/Research', 
       description: 'Topic planner and milestone tracker for your research',
       icon: FileText
     },
     { 
+      id: 'advisor',
       title: '24/7 Advisor', 
       description: 'Research help and structured guidance',
       icon: Stethoscope
     },
     { 
+      id: 'career',
       title: 'Career Guide', 
       description: 'Publish papers and get grant application help',
       icon: BookOpen
     },
     { 
+      id: 'calendar',
       title: 'Research Calendar', 
       description: 'Track deadlines and organize your research schedule',
       icon: Calendar
     },
     { 
+      id: 'literature',
       title: 'Literature Review', 
       description: 'AI-powered literature summaries and analysis',
       icon: Book
     },
     { 
+      id: 'settings',
       title: 'Smart Settings', 
       description: 'Customize your research experience',
       icon: Settings
     }
   ];
+
+  const handleFeatureClick = (featureId: string) => {
+    setSelectedFeature(featureId);
+    toast({
+      title: "Feature activated",
+      description: `You've activated the ${features.find(f => f.id === featureId)?.title} feature.`,
+    });
+  };
+
+  const handleUpgradeClick = () => {
+    toast({
+      title: "Premium Features",
+      description: "Unlock all premium features to enhance your research capabilities.",
+    });
+  };
+
+  const startResearchProject = () => {
+    toast({
+      title: "Research Project Started",
+      description: "Your new research project has been created. Start adding milestones and literature.",
+    });
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -124,7 +155,7 @@ const DoctorDashboard: React.FC = () => {
                       <CardDescription className="min-h-[40px]">
                         {feature.description}
                       </CardDescription>
-                      <Button variant="outline" size="sm" className="mt-4 w-full">
+                      <Button variant="outline" size="sm" className="mt-4 w-full" onClick={() => handleFeatureClick(feature.id)}>
                         Access Feature
                       </Button>
                     </CardContent>
@@ -146,7 +177,7 @@ const DoctorDashboard: React.FC = () => {
                 <p className="text-center py-8 text-muted-foreground">
                   Create your first research project to track milestones, literature, and findings.
                 </p>
-                <Button className="w-full bg-sakha-purple hover:bg-sakha-purple/90">
+                <Button className="w-full bg-sakha-purple hover:bg-sakha-purple/90" onClick={startResearchProject}>
                   Start a New Research Project
                 </Button>
               </CardContent>
@@ -174,7 +205,7 @@ const DoctorDashboard: React.FC = () => {
                 </ul>
               </div>
               <div className="flex flex-col justify-center">
-                <Button className="bg-sakha-purple hover:bg-sakha-purple/90">
+                <Button className="bg-sakha-purple hover:bg-sakha-purple/90" onClick={handleUpgradeClick}>
                   See Premium Plans
                 </Button>
               </div>

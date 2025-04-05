@@ -3,6 +3,7 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from '@/components/Header';
 import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
+import { UserRole } from '@/components/onboarding/OnboardingFlow';
 
 const Onboarding = () => {
   const location = useLocation();

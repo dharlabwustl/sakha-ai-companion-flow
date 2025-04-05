@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,8 +7,11 @@ import DashboardHeader from './DashboardHeader';
 import DashboardKPI from './DashboardKPI';
 import ChatContainer from '../chat/ChatContainer';
 import { Book, Calendar, Edit, Mic, Search, Settings } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 const StudentDashboard: React.FC = () => {
+  const [selectedFeature, setSelectedFeature] = useState<string | null>(null);
+
   const kpis = [
     {
       title: 'Study Time',
@@ -44,36 +47,58 @@ const StudentDashboard: React.FC = () => {
 
   const features = [
     { 
+      id: 'tutor',
       title: '24/7 Tutor', 
       description: 'Ask questions, get help with homework, and learn concepts',
       icon: Book
     },
     { 
+      id: 'advisor',
       title: 'Academic Advisor', 
       description: 'Smart study plans, deadline reminders, and academic guidance',
       icon: Calendar
     },
     { 
+      id: 'career',
       title: 'Career Guide', 
       description: 'Resume help, mock interviews, and career path planning',
       icon: Edit
     },
     { 
+      id: 'practice',
       title: 'Practice Tests', 
       description: 'Subject-specific exams to test your knowledge',
       icon: Search
     },
     { 
+      id: 'settings',
       title: 'Smart Settings', 
       description: 'Customize your learning experience',
       icon: Settings
     },
     { 
+      id: 'voice',
       title: 'Voice Learning', 
       description: 'Learn through voice interactions',
       icon: Mic
     }
   ];
+
+  const handleFeatureClick = (featureId: string) => {
+    setSelectedFeature(featureId);
+    toast({
+      title: "Feature activated",
+      description: `You've activated the ${features.find(f => f.id === featureId)?.title} feature.`,
+    });
+  };
+
+  const handleUpgradeClick = () => {
+    toast({
+      title: "Premium Features",
+      description: "Unlock all premium features to enhance your learning experience.",
+      variant: "default",
+    });
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -124,7 +149,7 @@ const StudentDashboard: React.FC = () => {
                       <CardDescription className="min-h-[40px]">
                         {feature.description}
                       </CardDescription>
-                      <Button variant="outline" size="sm" className="mt-4 w-full">
+                      <Button variant="outline" size="sm" className="mt-4 w-full" onClick={() => handleFeatureClick(feature.id)}>
                         Access Feature
                       </Button>
                     </CardContent>
@@ -146,7 +171,12 @@ const StudentDashboard: React.FC = () => {
                 <p className="text-center py-8 text-muted-foreground">
                   Detailed progress tracking will be available after completing more lessons.
                 </p>
-                <Button className="w-full bg-sakha-purple hover:bg-sakha-purple/90">
+                <Button className="w-full bg-sakha-purple hover:bg-sakha-purple/90" onClick={() => {
+                  toast({
+                    title: "Learning Session Started",
+                    description: "Your learning session has begun. Focus on your goals!",
+                  });
+                }}>
                   Start a New Learning Session
                 </Button>
               </CardContent>
@@ -174,7 +204,7 @@ const StudentDashboard: React.FC = () => {
                 </ul>
               </div>
               <div className="flex flex-col justify-center">
-                <Button className="bg-sakha-purple hover:bg-sakha-purple/90">
+                <Button className="bg-sakha-purple hover:bg-sakha-purple/90" onClick={handleUpgradeClick}>
                   View Plans and Upgrade
                 </Button>
               </div>
