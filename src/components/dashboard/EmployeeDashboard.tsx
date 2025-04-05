@@ -8,10 +8,24 @@ import DashboardKPI from './DashboardKPI';
 import ChatContainer from '../chat/ChatContainer';
 import { Book, Briefcase, Calendar, Edit, Mic, Settings } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import DashboardFeatureCard, { FeatureCardProps } from './DashboardFeatureCard';
+
+// Mock user data that would normally come from API/auth
+const mockUserData = {
+  name: 'Taylor',
+  role: 'employee' as const,
+  personality: 'Driver',
+  interests: ['Leadership', 'Marketing', 'Data Science'],
+  additionalInfo: {
+    company: 'TechCorp',
+    position: 'Senior Manager'
+  }
+};
 
 const EmployeeDashboard: React.FC = () => {
-  const [selectedFeature, setSelectedFeature] = useState<string | null>(null);
+  const [activeFeature, setActiveFeature] = useState<string | null>(null);
 
+  // This would typically be fetched from an API
   const kpis = [
     {
       title: 'Productivity Score',
@@ -45,12 +59,13 @@ const EmployeeDashboard: React.FC = () => {
     }
   ];
 
-  const features = [
+  const features: FeatureCardProps[] = [
     { 
       id: 'advisor',
       title: '24/7 Job Advisor', 
       description: 'Upskill advice and content creation assistance',
-      icon: Briefcase
+      icon: Briefcase,
+      isNew: true
     },
     { 
       id: 'productivity',
@@ -62,7 +77,8 @@ const EmployeeDashboard: React.FC = () => {
       id: 'career',
       title: 'Career Guide', 
       description: 'Career path planning and mentor suggestions',
-      icon: Edit
+      icon: Edit,
+      isPremium: true
     },
     { 
       id: 'training',
@@ -80,16 +96,46 @@ const EmployeeDashboard: React.FC = () => {
       id: 'voice',
       title: 'Voice Assistant', 
       description: 'Get help through voice interactions',
-      icon: Mic
+      icon: Mic,
+      isPremium: true
     }
   ];
 
   const handleFeatureClick = (featureId: string) => {
-    setSelectedFeature(featureId);
-    toast({
-      title: "Feature activated",
-      description: `You've activated the ${features.find(f => f.id === featureId)?.title} feature.`,
-    });
+    setActiveFeature(featureId);
+    
+    // Simulate different feature behaviors
+    switch(featureId) {
+      case 'advisor':
+        toast({
+          title: "Job Advisor Activated",
+          description: "Let's analyze your career trajectory and identify growth opportunities.",
+        });
+        break;
+      case 'productivity':
+        toast({
+          title: "Productivity Tracker",
+          description: "Tracking your work patterns to optimize performance.",
+        });
+        break;
+      case 'training':
+        toast({
+          title: "Training Module",
+          description: "Select a skill to develop through our guided learning modules.",
+        });
+        break;
+      case 'settings':
+        toast({
+          title: "Settings Panel",
+          description: "Customize your professional environment and preferences.",
+        });
+        break;
+      default:
+        toast({
+          title: "Feature activated",
+          description: `You've activated the ${features.find(f => f.id === featureId)?.title} feature.`,
+        });
+    }
   };
 
   const handleUpgradeClick = () => {
@@ -101,7 +147,12 @@ const EmployeeDashboard: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <DashboardHeader role="employee" username="Taylor" />
+      <DashboardHeader 
+        role={mockUserData.role} 
+        username={mockUserData.name}
+        personality={mockUserData.personality}
+        additionalInfo={mockUserData.additionalInfo}
+      />
       
       <main className="flex-1 container max-w-7xl mx-auto py-6 px-4">
         <div className="mb-8">
@@ -122,7 +173,7 @@ const EmployeeDashboard: React.FC = () => {
                   {
                     id: 'welcome',
                     role: 'assistant',
-                    content: "Hi Taylor! I'm Sakha, your professional growth companion. How can I help you excel at work today?",
+                    content: `Hi ${mockUserData.name}! I'm Sakha, your professional growth companion. How can I help you excel at work today?`,
                     timestamp: new Date()
                   }
                 ]}
@@ -132,29 +183,13 @@ const EmployeeDashboard: React.FC = () => {
           
           <TabsContent value="features" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {features.map((feature, index) => {
-                const Icon = feature.icon;
-                return (
-                  <Card key={index} className="overflow-hidden">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="p-2 rounded-full bg-secondary">
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <CardTitle className="text-lg">{feature.title}</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <CardDescription className="min-h-[40px]">
-                        {feature.description}
-                      </CardDescription>
-                      <Button variant="outline" size="sm" className="mt-4 w-full" onClick={() => handleFeatureClick(feature.id)}>
-                        Access Feature
-                      </Button>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+              {features.map((feature) => (
+                <DashboardFeatureCard
+                  key={feature.id}
+                  {...feature}
+                  onClick={handleFeatureClick}
+                />
+              ))}
             </div>
           </TabsContent>
           
@@ -167,17 +202,39 @@ const EmployeeDashboard: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-center py-8 text-muted-foreground">
-                  Detailed progress tracking will be available after completing more training modules.
-                </p>
-                <Button className="w-full bg-sakha-purple hover:bg-sakha-purple/90" onClick={() => {
-                  toast({
-                    title: "Training Session Started",
-                    description: "Your professional training session has begun. Focus on your growth!",
-                  });
-                }}>
-                  Start a New Training Session
-                </Button>
+                <div className="space-y-4">
+                  {mockUserData.interests.length > 0 ? (
+                    <div className="space-y-4">
+                      {mockUserData.interests.map((interest, index) => (
+                        <div key={index} className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium">{interest}</span>
+                            <span className="text-sm text-muted-foreground">{70 + index * 5}%</span>
+                          </div>
+                          <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-sakha-purple rounded-full" 
+                              style={{ width: `${70 + index * 5}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-center py-4 text-muted-foreground">
+                      Detailed progress tracking will be available after completing more training modules.
+                    </p>
+                  )}
+                  
+                  <Button className="w-full bg-sakha-purple hover:bg-sakha-purple/90" onClick={() => {
+                    toast({
+                      title: "Training Session Started",
+                      description: "Your professional training session has begun. Focus on your growth!",
+                    });
+                  }}>
+                    Start a New Training Session
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

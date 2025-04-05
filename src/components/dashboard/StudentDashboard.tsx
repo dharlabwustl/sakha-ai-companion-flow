@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,10 +8,24 @@ import DashboardKPI from './DashboardKPI';
 import ChatContainer from '../chat/ChatContainer';
 import { Book, Calendar, Edit, Mic, Search, Settings } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import DashboardFeatureCard, { FeatureCardProps } from './DashboardFeatureCard';
+
+// Mock user data that would normally come from API/auth
+const mockUserData = {
+  name: 'Alex',
+  role: 'student' as const,
+  personality: 'Analytical',
+  interests: ['Mathematics', 'Physics', 'Computer Science'],
+  additionalInfo: {
+    school: 'Tech University',
+    year: 'Junior'
+  }
+};
 
 const StudentDashboard: React.FC = () => {
-  const [selectedFeature, setSelectedFeature] = useState<string | null>(null);
+  const [activeFeature, setActiveFeature] = useState<string | null>(null);
 
+  // This would typically be fetched from an API
   const kpis = [
     {
       title: 'Study Time',
@@ -45,12 +59,13 @@ const StudentDashboard: React.FC = () => {
     }
   ];
 
-  const features = [
+  const features: FeatureCardProps[] = [
     { 
       id: 'tutor',
       title: '24/7 Tutor', 
       description: 'Ask questions, get help with homework, and learn concepts',
-      icon: Book
+      icon: Book,
+      isNew: true
     },
     { 
       id: 'advisor',
@@ -62,7 +77,8 @@ const StudentDashboard: React.FC = () => {
       id: 'career',
       title: 'Career Guide', 
       description: 'Resume help, mock interviews, and career path planning',
-      icon: Edit
+      icon: Edit,
+      isPremium: true
     },
     { 
       id: 'practice',
@@ -80,16 +96,46 @@ const StudentDashboard: React.FC = () => {
       id: 'voice',
       title: 'Voice Learning', 
       description: 'Learn through voice interactions',
-      icon: Mic
+      icon: Mic,
+      isPremium: true
     }
   ];
 
   const handleFeatureClick = (featureId: string) => {
-    setSelectedFeature(featureId);
-    toast({
-      title: "Feature activated",
-      description: `You've activated the ${features.find(f => f.id === featureId)?.title} feature.`,
-    });
+    setActiveFeature(featureId);
+    
+    // Simulate different feature behaviors
+    switch(featureId) {
+      case 'tutor':
+        toast({
+          title: "Tutor Mode Activated",
+          description: "Ask any question about your homework or studies.",
+        });
+        break;
+      case 'advisor':
+        toast({
+          title: "Academic Advisor",
+          description: "Let's organize your study schedule and academic goals.",
+        });
+        break;
+      case 'practice':
+        toast({
+          title: "Practice Test Started",
+          description: "Your practice session has begun. Good luck!",
+        });
+        break;
+      case 'settings':
+        toast({
+          title: "Settings Panel",
+          description: "Customize your learning environment and preferences.",
+        });
+        break;
+      default:
+        toast({
+          title: "Feature activated",
+          description: `You've activated the ${features.find(f => f.id === featureId)?.title} feature.`,
+        });
+    }
   };
 
   const handleUpgradeClick = () => {
@@ -102,7 +148,12 @@ const StudentDashboard: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <DashboardHeader role="student" username="Alex" />
+      <DashboardHeader 
+        role={mockUserData.role} 
+        username={mockUserData.name}
+        personality={mockUserData.personality}
+        additionalInfo={mockUserData.additionalInfo}
+      />
       
       <main className="flex-1 container max-w-7xl mx-auto py-6 px-4">
         <div className="mb-8">
@@ -123,7 +174,7 @@ const StudentDashboard: React.FC = () => {
                   {
                     id: 'welcome',
                     role: 'assistant',
-                    content: "Hi Alex! I'm Sakha, your personal AI study companion. What would you like to work on today?",
+                    content: `Hi ${mockUserData.name}! I'm Sakha, your personal AI study companion. What would you like to work on today?`,
                     timestamp: new Date()
                   }
                 ]}
@@ -133,29 +184,13 @@ const StudentDashboard: React.FC = () => {
           
           <TabsContent value="features" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {features.map((feature, index) => {
-                const Icon = feature.icon;
-                return (
-                  <Card key={index} className="overflow-hidden">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="p-2 rounded-full bg-secondary">
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <CardTitle className="text-lg">{feature.title}</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <CardDescription className="min-h-[40px]">
-                        {feature.description}
-                      </CardDescription>
-                      <Button variant="outline" size="sm" className="mt-4 w-full" onClick={() => handleFeatureClick(feature.id)}>
-                        Access Feature
-                      </Button>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+              {features.map((feature) => (
+                <DashboardFeatureCard
+                  key={feature.id}
+                  {...feature}
+                  onClick={handleFeatureClick}
+                />
+              ))}
             </div>
           </TabsContent>
           
@@ -168,17 +203,36 @@ const StudentDashboard: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-center py-8 text-muted-foreground">
-                  Detailed progress tracking will be available after completing more lessons.
-                </p>
-                <Button className="w-full bg-sakha-purple hover:bg-sakha-purple/90" onClick={() => {
-                  toast({
-                    title: "Learning Session Started",
-                    description: "Your learning session has begun. Focus on your goals!",
-                  });
-                }}>
-                  Start a New Learning Session
-                </Button>
+                <div className="space-y-4">
+                  {mockUserData.interests.length > 0 ? (
+                    <div className="space-y-4">
+                      {mockUserData.interests.map((interest, index) => (
+                        <div key={index} className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium">{interest}</span>
+                            <span className="text-sm text-muted-foreground">65%</span>
+                          </div>
+                          <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                            <div className="h-full bg-sakha-purple rounded-full" style={{ width: '65%' }}></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-center py-4 text-muted-foreground">
+                      Detailed progress tracking will be available after completing more lessons.
+                    </p>
+                  )}
+                  
+                  <Button className="w-full bg-sakha-purple hover:bg-sakha-purple/90" onClick={() => {
+                    toast({
+                      title: "Learning Session Started",
+                      description: "Your learning session has begun. Focus on your goals!",
+                    });
+                  }}>
+                    Start a New Learning Session
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

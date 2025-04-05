@@ -8,10 +8,24 @@ import DashboardKPI from './DashboardKPI';
 import ChatContainer from '../chat/ChatContainer';
 import { BookOpen, FileText, Stethoscope, Calendar, Book, Settings } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import DashboardFeatureCard, { FeatureCardProps } from './DashboardFeatureCard';
+
+// Mock user data that would normally come from API/auth
+const mockUserData = {
+  name: 'Dr. Morgan',
+  role: 'doctor' as const,
+  personality: 'Analytical',
+  interests: ['Cardiology', 'Medical Research', 'Patient Care'],
+  additionalInfo: {
+    hospital: 'Central Medical',
+    specialty: 'Cardiology'
+  }
+};
 
 const DoctorDashboard: React.FC = () => {
-  const [selectedFeature, setSelectedFeature] = useState<string | null>(null);
+  const [activeFeature, setActiveFeature] = useState<string | null>(null);
 
+  // This would typically be fetched from an API
   const kpis = [
     {
       title: 'Research Milestones',
@@ -45,12 +59,13 @@ const DoctorDashboard: React.FC = () => {
     }
   ];
 
-  const features = [
+  const features: FeatureCardProps[] = [
     { 
       id: 'thesis',
-      title: 'Make Thesis/Research', 
+      title: 'Research Assistant', 
       description: 'Topic planner and milestone tracker for your research',
-      icon: FileText
+      icon: FileText,
+      isNew: true
     },
     { 
       id: 'advisor',
@@ -62,7 +77,8 @@ const DoctorDashboard: React.FC = () => {
       id: 'career',
       title: 'Career Guide', 
       description: 'Publish papers and get grant application help',
-      icon: BookOpen
+      icon: BookOpen,
+      isPremium: true
     },
     { 
       id: 'calendar',
@@ -74,7 +90,8 @@ const DoctorDashboard: React.FC = () => {
       id: 'literature',
       title: 'Literature Review', 
       description: 'AI-powered literature summaries and analysis',
-      icon: Book
+      icon: Book,
+      isPremium: false
     },
     { 
       id: 'settings',
@@ -85,11 +102,46 @@ const DoctorDashboard: React.FC = () => {
   ];
 
   const handleFeatureClick = (featureId: string) => {
-    setSelectedFeature(featureId);
-    toast({
-      title: "Feature activated",
-      description: `You've activated the ${features.find(f => f.id === featureId)?.title} feature.`,
-    });
+    setActiveFeature(featureId);
+    
+    // Simulate different feature behaviors
+    switch(featureId) {
+      case 'thesis':
+        toast({
+          title: "Research Assistant Activated",
+          description: "Let's organize your research project and track milestones.",
+        });
+        break;
+      case 'advisor':
+        toast({
+          title: "Medical Advisor",
+          description: "How can I assist with your medical research today?",
+        });
+        break;
+      case 'calendar':
+        toast({
+          title: "Research Calendar",
+          description: "Let's manage your research schedule and deadlines.",
+        });
+        break;
+      case 'literature':
+        toast({
+          title: "Literature Review",
+          description: "Search and analyze medical research papers.",
+        });
+        break;
+      case 'settings':
+        toast({
+          title: "Settings Panel",
+          description: "Customize your medical research environment.",
+        });
+        break;
+      default:
+        toast({
+          title: "Feature activated",
+          description: `You've activated the ${features.find(f => f.id === featureId)?.title} feature.`,
+        });
+    }
   };
 
   const handleUpgradeClick = () => {
@@ -108,7 +160,12 @@ const DoctorDashboard: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <DashboardHeader role="doctor" username="Dr. Morgan" />
+      <DashboardHeader 
+        role={mockUserData.role} 
+        username={mockUserData.name}
+        personality={mockUserData.personality}
+        additionalInfo={mockUserData.additionalInfo}
+      />
       
       <main className="flex-1 container max-w-7xl mx-auto py-6 px-4">
         <div className="mb-8">
@@ -129,7 +186,7 @@ const DoctorDashboard: React.FC = () => {
                   {
                     id: 'welcome',
                     role: 'assistant',
-                    content: "Hello Dr. Morgan! I'm Sakha, your research companion. How can I assist with your medical research today?",
+                    content: `Hello ${mockUserData.name}! I'm Sakha, your research companion. How can I assist with your medical research today?`,
                     timestamp: new Date()
                   }
                 ]}
@@ -139,29 +196,13 @@ const DoctorDashboard: React.FC = () => {
           
           <TabsContent value="features" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {features.map((feature, index) => {
-                const Icon = feature.icon;
-                return (
-                  <Card key={index} className="overflow-hidden">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="p-2 rounded-full bg-secondary">
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <CardTitle className="text-lg">{feature.title}</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <CardDescription className="min-h-[40px]">
-                        {feature.description}
-                      </CardDescription>
-                      <Button variant="outline" size="sm" className="mt-4 w-full" onClick={() => handleFeatureClick(feature.id)}>
-                        Access Feature
-                      </Button>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+              {features.map((feature) => (
+                <DashboardFeatureCard
+                  key={feature.id}
+                  {...feature}
+                  onClick={handleFeatureClick}
+                />
+              ))}
             </div>
           </TabsContent>
           
@@ -174,12 +215,35 @@ const DoctorDashboard: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-center py-8 text-muted-foreground">
-                  Create your first research project to track milestones, literature, and findings.
-                </p>
-                <Button className="w-full bg-sakha-purple hover:bg-sakha-purple/90" onClick={startResearchProject}>
-                  Start a New Research Project
-                </Button>
+                <div className="space-y-4">
+                  {mockUserData.interests.length > 0 ? (
+                    <div className="space-y-4">
+                      <div className="rounded-lg border p-4">
+                        <h3 className="font-medium mb-2">Ongoing Research: {mockUserData.interests[0]} Study</h3>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Progress:</span>
+                            <span>40%</span>
+                          </div>
+                          <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                            <div className="h-full bg-sakha-purple rounded-full" style={{ width: '40%' }}></div>
+                          </div>
+                          <div className="text-sm text-muted-foreground mt-2">
+                            Next milestone: Literature review completion (in 2 weeks)
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-center py-4 text-muted-foreground">
+                      Create your first research project to track milestones, literature, and findings.
+                    </p>
+                  )}
+                  
+                  <Button className="w-full bg-sakha-purple hover:bg-sakha-purple/90" onClick={startResearchProject}>
+                    Start a New Research Project
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

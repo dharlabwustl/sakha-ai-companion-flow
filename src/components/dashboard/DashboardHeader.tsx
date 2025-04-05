@@ -5,10 +5,14 @@ import { UserRole } from '../onboarding/OnboardingFlow';
 import ThemeToggle from '../ThemeToggle';
 import { Bell, Settings, User } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import SakhaLogo from '../SakhaLogo';
+import { Badge } from '@/components/ui/badge';
 
 interface DashboardHeaderProps {
   role: UserRole;
   username?: string;
+  personality?: string;
+  additionalInfo?: Record<string, string>;
 }
 
 const roleLabels: Record<UserRole, string> = {
@@ -22,7 +26,9 @@ const roleLabels: Record<UserRole, string> = {
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({ 
   role, 
-  username = 'User'
+  username = 'User',
+  personality = '',
+  additionalInfo = {} 
 }) => {
   const handleNotificationClick = () => {
     toast({
@@ -48,13 +54,32 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   return (
     <header className="border-b border-border py-3 px-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-display font-semibold">
-            {roleLabels[role]}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Welcome back, {username}
-          </p>
+        <div className="flex items-center gap-3">
+          <SakhaLogo size="md" />
+          <div>
+            <h1 className="text-xl font-display font-semibold">
+              {roleLabels[role]}
+            </h1>
+            <div className="flex flex-wrap items-center gap-2 mt-1">
+              <span className="text-sm text-muted-foreground">
+                Welcome back, {username}
+              </span>
+              
+              {personality && (
+                <Badge variant="outline" className="text-xs font-normal">
+                  {personality} personality
+                </Badge>
+              )}
+              
+              {Object.entries(additionalInfo).map(([key, value]) => 
+                value ? (
+                  <Badge key={key} variant="secondary" className="text-xs font-normal">
+                    {value}
+                  </Badge>
+                ) : null
+              )}
+            </div>
+          </div>
         </div>
         
         <div className="flex items-center gap-1">
