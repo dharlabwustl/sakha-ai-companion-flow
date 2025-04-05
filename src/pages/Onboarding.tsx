@@ -12,7 +12,7 @@ const Onboarding = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <div className="flex-1 pt-16">
-        <OnboardingFlow />
+        <OnboardingFlow initialRole={role} />
       </div>
     </div>
   );

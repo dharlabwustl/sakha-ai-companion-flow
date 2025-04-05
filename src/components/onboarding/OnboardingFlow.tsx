@@ -37,12 +37,16 @@ const STEPS = [
   'dashboard-intro'
 ];
 
-const OnboardingFlow: React.FC = () => {
+interface OnboardingFlowProps {
+  initialRole?: UserRole;
+}
+
+const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ initialRole = '' }) => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [messages, setMessages] = useState<Message[]>([]);
   const [userData, setUserData] = useState<UserData>({
-    role: '',
+    role: initialRole,
     personality: '',
     interests: [],
     habits: {
@@ -67,7 +71,16 @@ const OnboardingFlow: React.FC = () => {
       };
       setMessages([initialMessage]);
     }
-  }, []);
+    
+    // If initialRole is provided, skip the role identification step
+    if (initialRole && currentStep === 0) {
+      setUserData(prev => ({ ...prev, role: initialRole }));
+      setTimeout(() => {
+        addBotMessage("Great! Let's get to know your personality type with a quick assessment.");
+        setCurrentStep(2);
+      }, 1000);
+    }
+  }, [initialRole]);
 
   const addBotMessage = (content: string) => {
     const newMessage: Message = {
